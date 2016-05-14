@@ -66,12 +66,13 @@ def parse(source, policy=u""):
 
     try:
         return _parse(source, policy)
-    except Exception, e:
+    except Exception as e:
         # Re-package the exception as a parse error that will get rendered with
         # the filename and line number of the element that caused the problem.
         # Keep the original traceback so the developer can debug where the problem
         # happened.
-        raise SupermodelParseError(e, fname, parseinfo.stack[-1]), None, sys.exc_info()[2]
+        raise SupermodelParseError(e, fname, parseinfo.stack[-1])(
+            None).with_traceback(sys.exc_info()[2])
 
 
 def _parse(source, policy):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from StringIO import StringIO
+from io import StringIO
 from plone.supermodel import model
 from plone.supermodel import parser
 from plone.supermodel import serializer
