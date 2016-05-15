@@ -18,7 +18,7 @@ limitations:
 
 First, let's wire up the package.
 
-    >>> configuration = """\
+    >>> configuration = u"""\
     ... <configure
     ...      xmlns="http://namespaces.zope.org/zope"
     ...      i18n_domain="plone.behavior.tests">
@@ -30,7 +30,7 @@ First, let's wire up the package.
     ... </configure>
     ... """
 
-    >>> from StringIO import StringIO
+    >>> from io import StringIO
     >>> from zope.configuration import xmlconfig
     >>> xmlconfig.xmlconfig(StringIO(configuration))
 
@@ -53,12 +53,12 @@ Bytes
 
     >>> field = schema.Bytes(__name__="dummy", title=u"Test",
     ...     description=u"Test desc", required=False, readonly=True,
-    ...     default='abc', missing_value='m',
+    ...     default=b'abc', missing_value=b'm',
     ...     min_length=2, max_length=10)
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
-    >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> element = handler.write(field, b'dummy', fieldType)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Bytes">
       <default>abc</default>
       <description>Test desc</description>
@@ -75,17 +75,17 @@ Bytes
     <class 'zope.schema._field.Bytes'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_B
     'abc'
-    >>> reciprocal.missing_value
+    >>> reciprocal.missing_value  # doctest: +IGNORE_B
     'm'
     >>> reciprocal.min_length
     2
@@ -97,12 +97,12 @@ BytesLine
 
     >>> field = schema.BytesLine(__name__="dummy", title=u"Test",
     ...     description=u"Test desc", required=False, readonly=True,
-    ...     default='abc', missing_value='m',
+    ...     default=b'abc', missing_value=b'm',
     ...     min_length=2, max_length=10)
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.BytesLine">
       <default>abc</default>
       <description>Test desc</description>
@@ -119,17 +119,17 @@ BytesLine
     <class 'zope.schema._field.BytesLine'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_B
     'abc'
-    >>> reciprocal.missing_value
+    >>> reciprocal.missing_value  # doctest: +IGNORE_B
     'm'
     >>> reciprocal.min_length
     2
@@ -146,7 +146,7 @@ ASCII
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.ASCII">
       <default>abc</default>
       <description>Test desc</description>
@@ -163,9 +163,9 @@ ASCII
     <class 'zope.schema._field.ASCII'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -190,7 +190,7 @@ ASCIILine
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.ASCIILine">
       <default>abc</default>
       <description>Test desc</description>
@@ -207,9 +207,9 @@ ASCIILine
     <class 'zope.schema._field.ASCIILine'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -234,7 +234,7 @@ Text
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Text">
       <default>abc</default>
       <description>Test desc</description>
@@ -251,17 +251,17 @@ Text
     <class 'zope.schema._bootstrapfields.Text'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_U
     u'abc'
-    >>> reciprocal.missing_value
+    >>> reciprocal.missing_value  # doctest: +IGNORE_U
     u'm'
     >>> reciprocal.min_length
     2
@@ -278,7 +278,7 @@ TextLine
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.TextLine">
       <default>abc</default>
       <description>Test desc</description>
@@ -295,17 +295,17 @@ TextLine
     <class 'zope.schema._bootstrapfields.TextLine'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_U
     u'abc'
-    >>> reciprocal.missing_value
+    >>> reciprocal.missing_value  # doctest: +IGNORE_U
     u'm'
     >>> reciprocal.min_length
     2
@@ -322,7 +322,7 @@ SourceText
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.SourceText">
       <default>abc</default>
       <description>Test desc</description>
@@ -339,17 +339,17 @@ SourceText
     <class 'zope.schema._field.SourceText'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_U
     u'abc'
-    >>> reciprocal.missing_value
+    >>> reciprocal.missing_value  # doctest: +IGNORE_U
     u'm'
     >>> reciprocal.min_length
     2
@@ -366,7 +366,7 @@ URI
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.URI">
       <default>http://plone.org</default>
       <description>Test desc</description>
@@ -383,9 +383,9 @@ URI
     <class 'zope.schema._field.URI'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -410,7 +410,7 @@ Id
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Id">
       <default>a.b.c</default>
       <description>Test desc</description>
@@ -427,9 +427,9 @@ Id
     <class 'zope.schema._field.Id'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -454,7 +454,7 @@ DottedName
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.DottedName">
       <default>a.b.c</default>
       <description>Test desc</description>
@@ -473,9 +473,9 @@ DottedName
     <class 'zope.schema._field.DottedName'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -504,7 +504,7 @@ Password
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Password">
       <default>abc</default>
       <description>Test desc</description>
@@ -521,17 +521,17 @@ Password
     <class 'zope.schema._bootstrapfields.Password'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_U
     u'abc'
-    >>> reciprocal.missing_value
+    >>> reciprocal.missing_value  # doctest: +IGNORE_U
     u'm'
     >>> reciprocal.min_length
     2
@@ -547,7 +547,7 @@ Bool
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Bool">
       <default>False</default>
       <description>Test desc</description>
@@ -562,9 +562,9 @@ Bool
     <class 'zope.schema._bootstrapfields.Bool'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -585,7 +585,7 @@ Int
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Int">
       <default>12</default>
       <description>Test desc</description>
@@ -602,9 +602,9 @@ Int
     <class 'zope.schema._bootstrapfields.Int'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -629,7 +629,7 @@ Float
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Float">
       <default>12.1</default>
       <description>Test desc</description>
@@ -646,9 +646,9 @@ Float
     <class 'zope.schema._field.Float'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -674,7 +674,7 @@ Decimal
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Decimal">
       <default>12.1</default>
       <description>Test desc</description>
@@ -691,9 +691,9 @@ Decimal
     <class 'zope.schema._field.Decimal'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -718,7 +718,7 @@ Date
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Date">
       <default>2001-01-02</default>
       <description>Test desc</description>
@@ -735,9 +735,9 @@ Date
     <class 'zope.schema._field.Date'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -762,7 +762,7 @@ Datetime
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Datetime">
       <default>2001-01-02 01:02:03</default>
       <description>Test desc</description>
@@ -779,9 +779,9 @@ Datetime
     <class 'zope.schema._field.Datetime'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -806,7 +806,7 @@ InterfaceField
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.InterfaceField">
       <default>plone.supermodel.tests.IDummy</default>
       <description>Test desc</description>
@@ -821,9 +821,9 @@ InterfaceField
     <class 'zope.schema._field.InterfaceField'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -845,7 +845,7 @@ Tuple
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Tuple">
       <default>
         <element>1</element>
@@ -868,9 +868,9 @@ Tuple
     <class 'zope.schema._field.Tuple'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -886,7 +886,7 @@ Tuple
     10
     >>> reciprocal.value_type.__class__
     <class 'zope.schema._bootstrapfields.Int'>
-    >>> reciprocal.value_type.title
+    >>> reciprocal.value_type.title  # doctest: +IGNORE_U
     u'Val'
 
 List
@@ -900,7 +900,7 @@ List
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.List">
       <default>
         <element>1</element>
@@ -923,9 +923,9 @@ List
     <class 'zope.schema._field.List'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -941,7 +941,7 @@ List
     10
     >>> reciprocal.value_type.__class__
     <class 'zope.schema._bootstrapfields.Int'>
-    >>> reciprocal.value_type.title
+    >>> reciprocal.value_type.title  # doctest: +IGNORE_U
     u'Val'
 
 Set
@@ -955,7 +955,7 @@ Set
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Set">
       <default>
         <element>1</element>
@@ -978,25 +978,29 @@ Set
     <class 'zope.schema._field.Set'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +SKIP_PYTHON_3
     set([1, 2])
-    >>> reciprocal.missing_value
+    >>> reciprocal.default  # doctest: +SKIP_PYTHON_2
+    {1, 2}
+    >>> reciprocal.missing_value  # doctest: +SKIP_PYTHON_3
     set([])
+    >>> reciprocal.missing_value  # doctest: +SKIP_PYTHON_2
+    set()
     >>> reciprocal.min_length
     2
     >>> reciprocal.max_length
     10
     >>> reciprocal.value_type.__class__
     <class 'zope.schema._bootstrapfields.Int'>
-    >>> reciprocal.value_type.title
+    >>> reciprocal.value_type.title  # doctest: +IGNORE_U
     u'Val'
 
 FrozenSet
@@ -1010,7 +1014,7 @@ FrozenSet
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.FrozenSet">
       <default>
         <element>1</element>
@@ -1033,25 +1037,29 @@ FrozenSet
     <class 'zope.schema._field.FrozenSet'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +SKIP_PYTHON_3
     frozenset([1, 2])
-    >>> reciprocal.missing_value
+    >>> reciprocal.default  # doctest: +SKIP_PYTHON_2
+    frozenset({1, 2})
+    >>> reciprocal.missing_value  # doctest: +SKIP_PYTHON_3
     frozenset([])
+    >>> reciprocal.missing_value  # doctest: +SKIP_PYTHON_2
+    frozenset()
     >>> reciprocal.min_length
     2
     >>> reciprocal.max_length
     10
     >>> reciprocal.value_type.__class__
     <class 'zope.schema._bootstrapfields.Int'>
-    >>> reciprocal.value_type.title
+    >>> reciprocal.value_type.title  # doctest: +IGNORE_U
     u'Val'
 
 Dict
@@ -1066,11 +1074,10 @@ Dict
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))  # doctest: +ELLIPSIS
     <field name="dummy" type="zope.schema.Dict">
       <default>
-        <element key="a">1</element>
-        <element key="b">2</element>
+      ...
       </default>
       <description>Test desc</description>
       <key_type type="zope.schema.ASCIILine">
@@ -1092,16 +1099,16 @@ Dict
     <class 'zope.schema._field.Dict'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
-    {'a': 1, 'b': 2}
+    >>> sorted(reciprocal.default.items())
+    [('a', 1), ('b', 2)]
     >>> reciprocal.missing_value
     {}
     >>> reciprocal.min_length
@@ -1110,11 +1117,11 @@ Dict
     10
     >>> reciprocal.key_type.__class__
     <class 'zope.schema._field.ASCIILine'>
-    >>> reciprocal.key_type.title
+    >>> reciprocal.key_type.title  # doctest: +IGNORE_U
     u'Key'
     >>> reciprocal.value_type.__class__
     <class 'zope.schema._bootstrapfields.Int'>
-    >>> reciprocal.value_type.title
+    >>> reciprocal.value_type.title  # doctest: +IGNORE_U
     u'Val'
 
 Object
@@ -1133,7 +1140,7 @@ fields will be omitted, as there is no way to write these reliably.
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType) #doctest: +ELLIPSIS
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Object">
       <description>Test desc</description>
       <readonly>True</readonly>
@@ -1162,9 +1169,9 @@ object field that references a particular dotted name.
     <class 'zope.schema._field.Object'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
@@ -1196,7 +1203,7 @@ These can be both exported and imported.
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Choice">
       <default>a</default>
       <description>Test desc</description>
@@ -1212,21 +1219,21 @@ These can be both exported and imported.
     <class 'zope.schema._field.Choice'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default # note - value is always unicode
+    >>> reciprocal.default # note - value is always unicode  # doctest: +IGNORE_U
     u'a'
-    >>> reciprocal.missing_value # note - value is always unicode
+    >>> reciprocal.missing_value # note - value is always unicode  # doctest: +IGNORE_U
     u''
     >>> reciprocal.vocabulary is None
     True
-    >>> reciprocal.vocabularyName
+    >>> reciprocal.vocabularyName  # doctest: +IGNORE_U
     u'dummy.vocab'
 
 2. Values vocabularies
@@ -1241,7 +1248,7 @@ a unicode string when importing.
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Choice">
       <default>a</default>
       <description>Test desc</description>
@@ -1261,20 +1268,22 @@ a unicode string when importing.
     <class 'zope.schema._field.Choice'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_U
     u'a'
-    >>> reciprocal.missing_value
+    >>> reciprocal.missing_value  # doctest: +IGNORE_U
     u''
-    >>> [t.value for t in reciprocal.vocabulary]
+    >>> [t.value for t in reciprocal.vocabulary]  # doctest: +SKIP_PYTHON_3
     [u'a', u'b', u'c']
+    >>> [t.value for t in reciprocal.vocabulary]  # doctest: +SKIP_PYTHON_2
+    ['a', 'b', 'c']
     >>> reciprocal.vocabularyName is None
     True
 
@@ -1283,10 +1292,13 @@ sure it hasn't regressed.
 
     >>> from plone.supermodel.interfaces import XML_NAMESPACE
     >>> element.set('xmlns', XML_NAMESPACE)
-    >>> element = etree.parse(StringIO(prettyXML(element))).getroot()
+    >>> element = etree.parse(StringIO(prettyXML(element).decode('utf-8'))).getroot()
     >>> reciprocal = handler.read(element)
-    >>> [t.value for t in reciprocal.vocabulary]
+    >>> [t.value for t in reciprocal.vocabulary]  # doctest: +SKIP_PYTHON_3
     [u'a', u'b', u'c']
+
+    >>> [t.value for t in reciprocal.vocabulary]  # doctest: +SKIP_PYTHON_2
+    ['a', 'b', 'c']
 
 Also, make sure we can handle terms with unicode values (as long as their
 tokens are the utf8-encoded values).
@@ -1303,7 +1315,7 @@ tokens are the utf8-encoded values).
     >>> fieldType = IFieldNameExtractor(field)()
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Choice">
       <default>a</default>
       <description>Test desc</description>
@@ -1318,8 +1330,11 @@ tokens are the utf8-encoded values).
     </field>
 
     >>> reciprocal = handler.read(element)
-    >>> [t.value for t in reciprocal.vocabulary]
+    >>> [t.value for t in reciprocal.vocabulary]  # doctest: +SKIP_PYTHON_3
     [u'a', u'\xe7']
+
+    >>> [t.value for t in reciprocal.vocabulary]  # doctest: +SKIP_PYTHON_2
+    [u'a', 'ç']
 
 
 Additionally, it is possible for Choice fields with a values vocabulary
@@ -1340,7 +1355,7 @@ with how Dict fields are output, only for Choices, order is guaranteed).
     ...     )
     >>> handler = getUtility(IFieldExportImportHandler, name=fieldType)
     >>> element = handler.write(field, 'dummy', fieldType)
-    >>> print prettyXML(element)
+    >>> print(prettyXML(element).decode('utf-8'))
     <field name="dummy" type="zope.schema.Choice">
       <title>Test</title>
       <values>
@@ -1403,15 +1418,15 @@ be specified via an importable dotted name.
     <class 'zope.schema._field.Choice'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_U
     u'a'
     >>> reciprocal.vocabulary is plone.supermodel.tests.dummy_binder
     True
@@ -1434,15 +1449,15 @@ be specified via an importable dotted name.
     <class 'zope.schema._field.Choice'>
     >>> reciprocal.__name__
     'dummy'
-    >>> reciprocal.title
+    >>> reciprocal.title  # doctest: +IGNORE_U
     u'Test'
-    >>> reciprocal.description
+    >>> reciprocal.description  # doctest: +IGNORE_U
     u'Test desc'
     >>> reciprocal.required
     False
     >>> reciprocal.readonly
     True
-    >>> reciprocal.default
+    >>> reciprocal.default  # doctest: +IGNORE_U
     u'a'
     >>> reciprocal.vocabulary is plone.supermodel.tests.dummy_vocabulary_instance
     True
@@ -1545,7 +1560,12 @@ A non-existent callable should also raise an error::
     ... """)
 
     >>> handler = getUtility(IFieldExportImportHandler, name='zope.schema.TextLine')
-    >>> reciprocal = handler.read(element)
+    >>> reciprocal = handler.read(element)  # doctest: +SKIP_PYTHON_3
     Traceback (most recent call last):
     ...
     ImportError: No module named nonExistentFactory
+
+    >>> reciprocal = handler.read(element)  # doctest: +SKIP_PYTHON_2 +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ImportError: No module named 'plone.supermodel.tests.nonExistentFactory' ...

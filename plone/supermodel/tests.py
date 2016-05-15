@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from cStringIO import StringIO
+from io import BytesIO
+from io import StringIO
 from lxml import etree
+import re
+import sys
+from zope.configuration.xmlconfig import _clearContext
 from plone.supermodel import utils
 from plone.supermodel.exportimport import ChoiceHandler
 from plone.supermodel.interfaces import IDefaultFactory
@@ -20,10 +24,40 @@ import doctest
 import unittest
 import zope.component.testing
 
+SKIP_PYTHON_2 = doctest.register_optionflag('SKIP_PYTHON_2')
+SKIP_PYTHON_3 = doctest.register_optionflag('SKIP_PYTHON_3')
+IGNORE_B = doctest.register_optionflag('IGNORE_B')
+IGNORE_U = doctest.register_optionflag('IGNORE_U')
+
+
+class PolyglotOutputChecker(doctest.OutputChecker):
+    def check_output(self, want, got, optionflags):
+        if optionflags & SKIP_PYTHON_3 and sys.version_info >= (3,):
+            return True
+        elif optionflags & SKIP_PYTHON_2:
+            return True
+
+        if hasattr(self, '_toAscii'):
+            got = self._toAscii(got)
+            want = self._toAscii(want)
+
+        # Naive fix for comparing byte strings
+        if got != want and optionflags & IGNORE_B:
+            got = re.sub(r'^b([\'"])', r'\1', got)
+            want = re.sub(r'^b([\'"])', r'\1', want)
+
+        # Naive fix for comparing byte strings
+        if got != want and optionflags & IGNORE_U:
+            got = re.sub(r'^u([\'"])', r'\1', got)
+            want = re.sub(r'^u([\'"])', r'\1', want)
+
+        return doctest.OutputChecker.check_output(
+            self, want, got, optionflags)
+
 
 def configure():
     zope.component.testing.setUp()
-    configuration = """\
+    configuration = u"""\
     <configure
          xmlns="http://namespaces.zope.org/zope"
          i18n_domain="plone.supermodel.tests">
@@ -342,51 +376,53 @@ class TestValueToElement(unittest.TestCase):
     def setUp(self):
         configure()
 
-    tearDown = zope.component.testing.tearDown
+    def tearDown(self):
+        zope.component.testing.tearDown(self)
+        _clearContext()
 
     def _assertSerialized(self, field, value, expected):
         element = utils.valueToElement(field, value, 'value')
-        sio = StringIO()
-        etree.ElementTree(element).write(sio)
-        self.assertEqual(sio.getvalue(), expected)
+        bio = BytesIO()
+        etree.ElementTree(element).write(bio)
+        self.assertEqual(bio.getvalue(), expected)
         unserialized = utils.elementToValue(field, element)
         self.assertEqual(value, unserialized)
 
     def test_lists(self):
         field = schema.List(value_type=schema.Int())
         value = []
-        self._assertSerialized(field, value, '<value/>')
+        self._assertSerialized(field, value, b'<value/>')
         value = [1, 2]
         self._assertSerialized(field, value,
-            '<value>'
-            '<element>1</element>'
-            '<element>2</element>'
-            '</value>'
+            b'<value>'
+            b'<element>1</element>'
+            b'<element>2</element>'
+            b'</value>'
             )
 
     def test_nested_lists(self):
         field = schema.List(value_type=schema.List(value_type=schema.Int()))
         value = []
-        self._assertSerialized(field, value, '<value/>')
+        self._assertSerialized(field, value, b'<value/>')
         value = [[1], [1, 2], []]
         self._assertSerialized(field, value,
-            '<value>'
-            '<element><element>1</element></element>'
-            '<element><element>1</element><element>2</element></element>'
-            '<element/>'
-            '</value>'
+            b'<value>'
+            b'<element><element>1</element></element>'
+            b'<element><element>1</element><element>2</element></element>'
+            b'<element/>'
+            b'</value>'
             )
 
     def test_dicts(self):
         field = schema.Dict(key_type=schema.Int(), value_type=schema.TextLine())
         value = {}
-        self._assertSerialized(field, value, '<value/>')
+        self._assertSerialized(field, value, b'<value/>')
         value = {1: 'one', 2: 'two'}
         self._assertSerialized(field, value,
-            '<value>'
-            '<element key="1">one</element>'
-            '<element key="2">two</element>'
-            '</value>'
+            b'<value>'
+            b'<element key="1">one</element>'
+            b'<element key="2">two</element>'
+            b'</value>'
             )
 
     def test_nested_dicts(self):
@@ -397,14 +433,14 @@ class TestValueToElement(unittest.TestCase):
                 ),
             )
         value = {}
-        self._assertSerialized(field, value, '<value/>')
+        self._assertSerialized(field, value, b'<value/>')
         value = {1: {2: 'two'}, 3: {4: 'four', 5: 'five'}, 6: {}}
         self._assertSerialized(field, value,
-            '<value>'
-            '<element key="1"><element key="2">two</element></element>'
-            '<element key="3"><element key="4">four</element><element key="5">five</element></element>'
-            '<element key="6"/>'
-            '</value>'
+            b'<value>'
+            b'<element key="1"><element key="2">two</element></element>'
+            b'<element key="3"><element key="4">four</element><element key="5">five</element></element>'
+            b'<element key="6"/>'
+            b'</value>'
             )
 
 
@@ -414,26 +450,30 @@ class TestChoiceHandling(unittest.TestCase):
         configure()
         self.handler = ChoiceHandler(schema.Choice)
 
+    def tearDown(self):
+        zope.component.testing.tearDown(self)
+        _clearContext()
+
     def _choice(self):
         vocab = SimpleVocabulary(
             [SimpleTerm(t, title=t) for t in (u'a', u'b', u'c')]
             )
-        expected = '<field name="myfield" type="zope.schema.Choice">'\
-            '<values>'\
-            '<element>a</element><element>b</element><element>c</element>'\
-            '</values>'\
-            '</field>'
+        expected = b'<field name="myfield" type="zope.schema.Choice">'\
+            b'<values>'\
+            b'<element>a</element><element>b</element><element>c</element>'\
+            b'</values>'\
+            b'</field>'
         return (schema.Choice(vocabulary=vocab), expected)
 
     def _choice_with_empty(self):
         # add an empty string term to vocabulary
         vocab = SimpleVocabulary([SimpleTerm(t, title=t) for t in (u'a', u'')])
-        expected = '<field name="myfield" type="zope.schema.Choice">'\
-            '<values>'\
-            '<element>a</element>'\
-            '<element></element>'\
-            '</values>'\
-            '</field>'
+        expected = b'<field name="myfield" type="zope.schema.Choice">'\
+            b'<values>'\
+            b'<element>a</element>'\
+            b'<element></element>'\
+            b'</values>'\
+            b'</field>'
         return (schema.Choice(vocabulary=vocab), expected)
 
     def _choice_with_term_titles(self):
@@ -442,13 +482,13 @@ class TestChoiceHandling(unittest.TestCase):
             [SimpleTerm(t, title=t.upper()) for t in (u'a', u'b')] +
             [SimpleTerm(u'c', title=u'c')],
             )
-        expected = '<field name="myfield" type="zope.schema.Choice">'\
-            '<values>'\
-            '<element key="a">A</element>'\
-            '<element key="b">B</element>'\
-            '<element key="c">c</element>'\
-            '</values>'\
-            '</field>'
+        expected = b'<field name="myfield" type="zope.schema.Choice">'\
+            b'<values>'\
+            b'<element key="a">A</element>'\
+            b'<element key="b">B</element>'\
+            b'<element key="c">c</element>'\
+            b'</values>'\
+            b'</field>'
         return (schema.Choice(vocabulary=vocab), expected)
 
     def test_choice_serialized(self):
@@ -480,6 +520,11 @@ class TestChoiceHandling(unittest.TestCase):
                 )
 
 
+def tearDown(*args):
+    zope.component.testing.tearDown(*args)
+    _clearContext()
+
+
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(TestUtils),
@@ -487,18 +532,22 @@ def test_suite():
         unittest.makeSuite(TestChoiceHandling),
         doctest.DocFileSuite('schema.txt',
             setUp=zope.component.testing.setUp,
-            tearDown=zope.component.testing.tearDown,
-            optionflags=doctest.ELLIPSIS),
+            tearDown=tearDown,
+            optionflags=doctest.ELLIPSIS,
+            checker=PolyglotOutputChecker()),
         doctest.DocFileSuite('fields.txt',
             setUp=zope.component.testing.setUp,
-            tearDown=zope.component.testing.tearDown,
-            optionflags=doctest.ELLIPSIS),
+            tearDown=tearDown,
+            optionflags=doctest.ELLIPSIS,
+            checker=PolyglotOutputChecker()),
         doctest.DocFileSuite('schemaclass.txt',
             setUp=zope.component.testing.setUp,
-            tearDown=zope.component.testing.tearDown),
+            tearDown=tearDown,
+            checker=PolyglotOutputChecker()),
         doctest.DocFileSuite('directives.txt',
             setUp=zope.component.testing.setUp,
-            tearDown=zope.component.testing.tearDown),
+            tearDown=tearDown,
+            checker=PolyglotOutputChecker()),
         ))
 
 

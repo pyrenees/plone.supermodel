@@ -22,6 +22,9 @@ from zope.schema import getFields
 import linecache
 import sys
 
+if sys.version_info >= (3,):
+    basestring = str
+
 # Exception
 
 class SupermodelParseError(Exception):
@@ -59,19 +62,42 @@ class DefaultSchemaPolicy(object):
 
 # Algorithm
 
-def parse(source, policy=u""):
-    fname = None
-    if isinstance(source, basestring):
-        fname = source
+if sys.version_info >= (3,):
+    def parse(source, policy=u""):
+        fname = None
+        if isinstance(source, basestring):
+            fname = source
 
-    try:
-        return _parse(source, policy)
-    except Exception, e:
+        try:
+            return _parse(source, policy)
+        except Exception as e:
+            # Re-package the exception as a parse error that will get rendered with
+            # the filename and line number of the element that caused the problem.
+            # Keep the original traceback so the developer can debug where the problem
+            # happened.
+            raise SupermodelParseError(
+                e,
+                fname,
+                parseinfo.stack[-1]
+            ).with_traceback(sys.exc_info()[2])
+else:
+    def parse(source, policy=u""):
+        fname = None
+        if isinstance(source, basestring):
+            fname = source
+
+        try:
+            return _parse(source, policy)
+        except Exception as e:
         # Re-package the exception as a parse error that will get rendered with
         # the filename and line number of the element that caused the problem.
         # Keep the original traceback so the developer can debug where the problem
         # happened.
-        raise SupermodelParseError(e, fname, parseinfo.stack[-1]), None, sys.exc_info()[2]
+            raise SupermodelParseError(
+                e,
+                fname,
+                parseinfo.stack[-1]
+            ), None, sys.exc_info()[2]
 
 
 def _parse(source, policy):

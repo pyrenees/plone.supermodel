@@ -23,6 +23,12 @@ try:
 except:
     from zope.schema.vocabulary import OrderedDict  # <py27
 
+import sys
+if sys.version_info >= (3,):
+    text_type = str
+else:
+    text_type = unicode
+
 
 class OrderedDictField(zope.schema.Dict):
     _type = OrderedDict
@@ -246,6 +252,9 @@ class BaseHandler(object):
                 elementName in self.nonValidatedfieldTypeAttributes:
             attributeField = field
 
+        if isinstance(value, bytes) and not isinstance(value, str):
+            value = value.decode('utf-8')
+
         return valueToElement(
             attributeField,
             value,
@@ -386,8 +395,9 @@ class ChoiceHandler(BaseHandler):
              and IVocabularyTokenized.providedBy(field.vocabulary):
             value = []
             for term in field.vocabulary:
-                if (not isinstance(term.value, (str, unicode), )
-                    or term.token != term.value.encode('unicode_escape')):
+                if (not isinstance(term.value, (str, text_type), ) or
+                        term.token.encode('utf-8') !=  # token is 'str'
+                        term.value.encode('unicode_escape')):
                     raise NotImplementedError(
                         u"Cannot export a vocabulary that is not "
                         u"based on a simple list of values"

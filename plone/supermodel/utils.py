@@ -20,6 +20,12 @@ try:
 except:
     from zope.schema.vocabulary import OrderedDict  # <py27
 
+import sys
+if sys.version_info < (3,):
+    text_type = unicode
+else:
+    text_type = str
+
 
 _marker = object()
 noNS_re = re.compile('^{\S+}')
@@ -107,7 +113,7 @@ def elementToValue(field, element, default=_marker):
             if key_text is None:
                 k = None
             else:
-                k = key_converter.fromUnicode(unicode(key_text))
+                k = key_converter.fromUnicode(text_type(key_text))
 
             value[k] = elementToValue(field.value_type, child)
             parseinfo.stack.pop()
@@ -131,10 +137,10 @@ def elementToValue(field, element, default=_marker):
             value = field.missing_value
         else:
             converter = IFromUnicode(field)
-            value = converter.fromUnicode(unicode(text))
+            value = converter.fromUnicode(text_type(text))
 
         # handle i18n
-        if isinstance(value, unicode) and parseinfo.i18n_domain is not None:
+        if isinstance(value, text_type) and parseinfo.i18n_domain is not None:
             translate_attr = ns('translate', I18N_NAMESPACE)
             domain_attr = ns('domain', I18N_NAMESPACE)
             msgid = element.attrib.get(translate_attr)

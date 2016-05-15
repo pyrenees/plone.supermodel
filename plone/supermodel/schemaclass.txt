@@ -4,15 +4,15 @@ plone.supermodel: SchemaClass
 
     >>> from plone.supermodel.model import Schema, SchemaClass
     >>> from plone.supermodel import interfaces
-    >>> from zope.interface import Interface, implements
-    >>> from zope.component import adapts, provideAdapter
+    >>> from zope.interface import Interface, implementer
+    >>> from zope.component import adapter, provideAdapter
 
 Schema plugins are registered as named adapters. They may optionally contain
 an order attribute, which defaults to 0.
 
-    >>> class TestPlugin(object):
-    ...     adapts(interfaces.ISchema)
-    ...     implements(interfaces.ISchemaPlugin)
+    >>> @adapter(interfaces.ISchema)
+    ... @implementer(interfaces.ISchemaPlugin)
+    ... class TestPlugin(object):
     ...     order = 1
     ...     def __init__(self, schema):
     ...         self.schema = schema
@@ -23,9 +23,13 @@ an order attribute, which defaults to 0.
 
 Schema plugins are executed at schema declaration.
 
-    >>> class IA(Schema):
+    >>> class IA(Schema):  # doctest: +SKIP_PYTHON_3
     ...     pass
     TestPlugin: <SchemaClass __builtin__.IA>
+
+    >>> class IA(Schema):  # doctest: +SKIP_PYTHON_2
+    ...     pass
+    TestPlugin: <SchemaClass builtins.IA>
 
 Any class descending from Schema becomes an instance of SchemaClass and has any
 schema plugins called.
@@ -39,15 +43,13 @@ resolved.
     >>> class ISomeInterface(Interface):
     ...     pass
 
-    >>> class IB(ISomeInterface, IA):
+    >>> class IB(ISomeInterface, IA):  # doctest: +SKIP_PYTHON_2
     ...     pass
+    TestPlugin: <SchemaClass builtins.IB>
 
-#    TestPlugin: <SchemaClass __builtin__.IB>
-
-    >>> class IC(IB):
+    >>> class IC(IB):  # doctest: +SKIP_PYTHON_2
     ...     pass
-
-#    TestPlugin: <SchemaClass __builtin__.IC>
+    TestPlugin: <SchemaClass builtins.IC>
 
 To support the registration of schema plugins in ZCML, plugins are
 additionally executed at zope.configuration time with a ZCML order of 1000. To
@@ -59,11 +61,12 @@ directly.
 
     >>> provideAdapter(TestPlugin2, name=u"plone.supermodel.tests.TestPlugin2")
     >>> from plone.supermodel.model import finalizeSchemas
-    >>> finalizeSchemas(IA)
+    >>> finalizeSchemas(IA)  # doctest: +SKIP_PYTHON_3
     TestPlugin2: <SchemaClass __builtin__.IA>
     TestPlugin: <SchemaClass __builtin__.IA>
 
-#    TestPlugin2: <SchemaClass __builtin__.IB>
-#    TestPlugin: <SchemaClass __builtin__.IB>
-#    TestPlugin2: <SchemaClass __builtin__.IC>
-#    TestPlugin: <SchemaClass __builtin__.IC>
+    >>> finalizeSchemas(IA)  # doctest: +SKIP_PYTHON_2
+    TestPlugin2: <SchemaClass __builtin__.IA>
+    TestPlugin: <SchemaClass __builtin__.IA>
+    TestPlugin2: <SchemaClass __builtin__.IC>
+    TestPlugin: <SchemaClass __builtin__.IC>

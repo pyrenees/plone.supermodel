@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from StringIO import StringIO
+from io import BytesIO
 from plone.supermodel import model
 from plone.supermodel import parser
 from plone.supermodel import serializer
@@ -29,7 +29,9 @@ def loadFile(filename, reload=False, policy=u"", _frame=2):
 
 
 def loadString(model, policy=u""):
-    return parser.parse(StringIO(model), policy=policy)
+    if isinstance(model, str) and not isinstance(model, bytes):
+        model = model.encode('utf-8')
+    return parser.parse(BytesIO(model), policy=policy)
 
 
 def serializeSchema(schema, name=u""):

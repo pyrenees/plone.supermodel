@@ -13,6 +13,12 @@ from zope.schema.interfaces import IObject
 import datetime
 import time
 
+import sys
+if sys.version_info < (3,):
+    text_type = unicode
+else:
+    text_type = str
+
 
 # Defaults
 
@@ -35,7 +41,7 @@ class DefaultToUnicode(object):
         self.context = context
 
     def toUnicode(self, value):
-        return unicode(value)
+        return text_type(value)
 
 
 # Date/time fields
@@ -95,7 +101,7 @@ class InterfaceFieldToUnicode(object):
         self.context = context
 
     def toUnicode(self, value):
-        return unicode(value.__identifier__)
+        return text_type(value.__identifier__)
 
 
 # Object fields - we can read, but not write, as there is no way to know

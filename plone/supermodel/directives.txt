@@ -13,7 +13,7 @@ Setup
 
 First, load this package's configuration:
 
-    >>> configuration = """\
+    >>> configuration = u"""\
     ... <configure
     ...      xmlns="http://namespaces.zope.org/zope"
     ...      i18n_domain="plone.supermodel.tests">
@@ -25,7 +25,7 @@ First, load this package's configuration:
     ... </configure>
     ... """
 
-    >>> from StringIO import StringIO
+    >>> from io import StringIO
     >>> from zope.configuration import xmlconfig
     >>> xmlconfig.xmlconfig(StringIO(configuration))
 
@@ -76,7 +76,7 @@ temporary directory created above.
 
     >>> schema_filename = os.path.join(tmpdir, "schema.xml")
     >>> schema_file = open(schema_filename, "w")
-    >>> schema_file.write(schema)
+    >>> bytes_written = schema_file.write(schema)
     >>> schema_file.close()
 
 We can now define a schema, using the directives defined in this package:
@@ -100,7 +100,7 @@ name as a tagged values in the base interface.
     >>> from plone.supermodel.interfaces import FILENAME_KEY, SCHEMA_NAME_KEY
     >>> ITestContent.getTaggedValue(FILENAME_KEY) # doctest: +ELLIPSIS
     '.../schema.xml'
-    >>> ITestContent.getTaggedValue(SCHEMA_NAME_KEY)
+    >>> ITestContent.getTaggedValue(SCHEMA_NAME_KEY)  # doctest: +IGNORE_U
     u''
 
 We can also use a different, named schema:
@@ -117,7 +117,7 @@ Again, the interface has tagged values for the filename and schema name.
 
     >>> ITestMetadata.getTaggedValue(FILENAME_KEY) # doctest: +ELLIPSIS
     '.../schema.xml'
-    >>> ITestMetadata.getTaggedValue(SCHEMA_NAME_KEY)
+    >>> ITestMetadata.getTaggedValue(SCHEMA_NAME_KEY)  # doctest: +IGNORE_U
     u'metadata'
 
 Adding and overriding fields
@@ -137,7 +137,7 @@ former will override the latter.
     >>> getFieldNamesInOrder(ITestContentWithNewFields)
     ['body', 'title', 'postscript']
 
-    >>> ITestContentWithNewFields[u'title'].default
+    >>> ITestContentWithNewFields[u'title'].default  # doctest: +IGNORE_U
     u'Default title'
 
 Fieldset support
