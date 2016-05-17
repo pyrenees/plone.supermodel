@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
 from plone.supermodel.debug import parseinfo
+from plone.supermodel.exportimport import BaseHandler
 from plone.supermodel.interfaces import IDefaultFactory
 from plone.supermodel.interfaces import IFieldExportImportHandler
+from plone.supermodel.interfaces import IXMLFieldExportImportHandler
 from plone.supermodel.interfaces import IFieldNameExtractor
 from plone.supermodel.utils import noNS
 from plone.supermodel.utils import valueToElement
 from plone.supermodel.utils import elementToValue
 from zope.component import queryUtility
 from zope.interface import Interface
-from zope.interface import implementedBy
 from zope.interface import implementer
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.schema.interfaces import IField
@@ -24,57 +25,8 @@ except:
     from zope.schema.vocabulary import OrderedDict  # <py27
 
 
-class OrderedDictField(zope.schema.Dict):
-    _type = OrderedDict
-
-
-@implementer(IFieldExportImportHandler)
-class BaseHandler(object):
-    """Base class for import/export handlers.
-
-    The read_field method is called to read one field of the known subtype
-    from an XML element.
-
-    The write_field method is called to write one field to a particular element.
-    """
-
-    # Elements that we will not read/write. 'r' means skip when reading;
-    # 'w' means skip when writing; 'rw' means skip always.
-
-    filteredAttributes = {'order': 'rw', 'unique': 'rw', 'defaultFactory': 'w'}
-
-    # Elements that are of the same type as the field itself
-    fieldTypeAttributes = ('min', 'max', 'default', )
-
-    # Elements that are of the same type as the field itself, but are
-    # otherwise not validated
-    nonValidatedfieldTypeAttributes = ('missing_value', )
-
-    # Attributes that contain another field. Unfortunately,
-    fieldInstanceAttributes = ('key_type', 'value_type', )
-
-    # Fields that are always written
-
-    forcedFields = frozenset(['default', 'missing_value'])
-
-    def __init__(self, klass):
-        self.klass = klass
-        self.fieldAttributes = {}
-
-        # Build a dict of the parameters supported by this field type.
-        # Each parameter is itself a field, which can be used to convert
-        # text input to an appropriate object.
-        for schema in implementedBy(self.klass).flattened():
-            self.fieldAttributes.update(zope.schema.getFields(schema))
-
-        self.fieldAttributes['defaultFactory'] = zope.schema.Object(
-            __name__='defaultFactory',
-            title=u"defaultFactory",
-            schema=Interface
-        )
-
-    def _constructField(self, attributes):
-        return self.klass(**attributes)
+@implementer(IXMLFieldExportImportHandler)
+class XMLBaseHandler(BaseHandler):
 
     def read(self, element):
         """Read a field from the element and return a new instance
@@ -254,13 +206,13 @@ class BaseHandler(object):
         )
 
 
-class DictHandler(BaseHandler):
+class XMLDictHandler(XMLBaseHandler):
     """Special handling for the Dict field, which uses Attribute instead of
     Field to describe its key_type and value_type.
     """
 
     def __init__(self, klass):
-        super(DictHandler, self).__init__(klass)
+        super(XMLDictHandler, self).__init__(klass)
         self.fieldAttributes['key_type'] = zope.schema.Field(
             __name__='key_type',
             title=u"Key type"
@@ -271,18 +223,18 @@ class DictHandler(BaseHandler):
         )
 
 
-class ObjectHandler(BaseHandler):
+class XMLObjectHandler(XMLBaseHandler):
     """Special handling for the Object field, which uses Attribute instead of
     Field to describe its schema
     """
 
     # We can't serialise the value or missing_value of an object field.
 
-    filteredAttributes = BaseHandler.filteredAttributes.copy()
+    filteredAttributes = XMLBaseHandler.filteredAttributes.copy()
     filteredAttributes.update({'default': 'w', 'missing_value': 'w'})
 
     def __init__(self, klass):
-        super(ObjectHandler, self).__init__(klass)
+        super(XMLObjectHandler, self).__init__(klass)
 
         # This is not correctly set in the interface
         self.fieldAttributes['schema'] = zope.schema.InterfaceField(
@@ -290,11 +242,11 @@ class ObjectHandler(BaseHandler):
         )
 
 
-class ChoiceHandler(BaseHandler):
+class XMLChoiceHandler(XMLBaseHandler):
     """Special handling for the Choice field
     """
 
-    filteredAttributes = BaseHandler.filteredAttributes.copy()
+    filteredAttributes = XMLBaseHandler.filteredAttributes.copy()
     filteredAttributes.update(
         {'vocabulary': 'w',
          'values': 'w',
@@ -304,7 +256,7 @@ class ChoiceHandler(BaseHandler):
     )
 
     def __init__(self, klass):
-        super(ChoiceHandler, self).__init__(klass)
+        super(XMLChoiceHandler, self).__init__(klass)
 
         # Special options for the constructor. These are not automatically written.
 
@@ -362,11 +314,11 @@ class ChoiceHandler(BaseHandler):
                 terms.append(term)
             attributes['vocabulary'] = SimpleVocabulary(terms)
             del attributes['values']
-        return super(ChoiceHandler, self)._constructField(attributes)
+        return super(XMLChoiceHandler, self)._constructField(attributes)
 
     def write(self, field, name, type, elementName='field'):
 
-        element = super(ChoiceHandler, self).write(field, name, type, elementName)
+        element = super(XMLChoiceHandler, self).write(field, name, type, elementName)
 
         # write vocabulary or values list
 

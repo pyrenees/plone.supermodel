@@ -14,6 +14,13 @@ import datetime
 import time
 
 
+# Python 2.7/3 compatibility
+try:
+    unicode
+except NameError:
+    unicode = str
+
+
 # Defaults
 
 @implementer(IFromUnicode)
