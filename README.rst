@@ -1,6 +1,9 @@
 Introduction
 ============
 
+.. image:: https://secure.travis-ci.org/pyrenees/plone.supermodel.png
+   :target: http://travis-ci.org/pyrenees/plone.supermodel
+
 plone.supermodel provides XML import and export for schema interfaces based on
 zope.schema fields. The principal use cases are:
 
