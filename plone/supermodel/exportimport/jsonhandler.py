@@ -8,8 +8,6 @@ from plone.supermodel.interfaces import IFieldExportImportHandler
 from plone.supermodel.interfaces import IJSONFieldExportImportHandler
 from plone.supermodel.interfaces import IFieldNameExtractor
 from plone.supermodel.utils import noNS
-from plone.supermodel.utils import valueToElement
-from plone.supermodel.utils import elementToValue
 from zope.component import queryUtility
 from zope.interface import Interface
 from zope.interface import implementedBy
@@ -27,135 +25,85 @@ except:
     from zope.schema.vocabulary import OrderedDict  # <py27
 
 
+
+from zope.schema.interfaces import ICollection
+from zope.schema.interfaces import IDict
+from zope.schema.interfaces import IField
+from zope.schema.interfaces import IFromUnicode
+from plone.supermodel.interfaces import IToUnicode
+
+
+def valueToElement(field, value, name=None, force=False):
+    """Create and return an element that describes the given value, which is
+    assumed to be valid for the given field.
+
+    If name is given, this will be used as the new element name. Otherwise,
+    the field's __name__ attribute is consulted.
+
+    If force is True, the value will always be written. Otherwise, it is only
+    written if it is not equal to field.missing_value.
+    """
+
+    if name is None:
+        name = field.__name__
+
+    child = {'type': value.__class__.__name__}
+
+    if value is not None and (force or value != field.missing_value):
+
+        if IDict.providedBy(field):
+            key_converter = IToUnicode(field.key_type)
+            for k, v in value.items():
+                name, list_element = valueToElement(field.value_type, v, 'element', force)
+                list_element['key'] = key_converter.toUnicode(k)
+                child['values'].append(list_element)
+
+        elif ICollection.providedBy(field):
+            for v in value:
+                name, list_element = valueToElement(field.value_type, v, 'element', force)
+                child['values'].append(list_element)
+
+        else:
+            converter = IToUnicode(field)
+            child['value'] = converter.toUnicode(value)
+
+            # handle i18n
+            # if isinstance(value, Message):
+            #     child.set(ns('domain', I18N_NAMESPACE), value.domain)
+            #     if not value.default:
+            #         child.set(ns('translate', I18N_NAMESPACE), '')
+            #     else:
+            #         child.set(ns('translate', I18N_NAMESPACE), child.text)
+            #         child.text = converter.toUnicode(value.default)
+
+    return name, child
+
+
 @implementer(IJSONFieldExportImportHandler)
 class JSONBaseHandler(BaseHandler):
 
     def read(self, element):
         """Read a field from the element and return a new instance
         """
-        attributes = {}
-        deferred = {}
-        deferred_nonvalidated = {}
+        raise NotImplementedError("TODO: This.")
 
-        for attribute_element in element.iterchildren(tag=etree.Element):
-            parseinfo.stack.append(attribute_element)
-            attribute_name = noNS(attribute_element.tag)
-
-            if 'r' in self.filteredAttributes.get(attribute_name, ''):
-                continue
-
-            attributeField = self.fieldAttributes.get(attribute_name, None)
-            if attributeField is not None:
-
-                if attribute_name in self.fieldTypeAttributes:
-                    deferred[attribute_name] = attribute_element
-
-                elif attribute_name in self.nonValidatedfieldTypeAttributes:
-                    deferred_nonvalidated[attribute_name] = attribute_element
-
-                elif attribute_name in self.fieldInstanceAttributes:
-
-                    attributeField_type = attribute_element.get('type')
-                    handler = queryUtility(
-                        IFieldExportImportHandler,
-                        name=attributeField_type
-                    )
-
-                    if handler is None:
-                        raise NotImplementedError(
-                            u"Type %s used for %s not supported" %
-                            (attributeField_type, attribute_name)
-                        )
-
-                    attributes[attribute_name] = handler.read(
-                        attribute_element
-                    )
-
-                else:
-                    attributes[attribute_name] = self.readAttribute(
-                        attribute_element,
-                        attributeField
-                    )
-            parseinfo.stack.pop()
-
-        name = element.get('name')
-        if name is not None:
-            name = str(name)
-            attributes['__name__'] = name
-
-        field_instance = self._constructField(attributes)
-
-        # some fields can't validate fully until they're finished setting up
-        field_instance._init_field = True
-
-        # Handle those elements that can only be set up once the field is
-        # constructed, in the preferred order.
-        for attribute_name in self.fieldTypeAttributes:
-            if attribute_name in deferred:
-                attribute_element = deferred[attribute_name]
-                parseinfo.stack.append(attribute_element)
-                value = self.readAttribute(attribute_element, field_instance)
-                setattr(field_instance, attribute_name, value)
-                parseinfo.stack.pop()
-
-        for attribute_name in self.nonValidatedfieldTypeAttributes:
-            if attribute_name in deferred_nonvalidated:
-
-                # this is pretty nasty: we need the field's fromUnicode(),
-                # but this always validates. The missing_value field may by
-                # definition be invalid. Therefore, we need to fake it.
-
-                clone = self.klass.__new__(self.klass)
-                clone.__dict__.update(field_instance.__dict__)
-                clone.__dict__['validate'] = lambda value: True
-
-                attribute_element = deferred_nonvalidated[attribute_name]
-                parseinfo.stack.append(attribute_element)
-                value = self.readAttribute(attribute_element, clone)
-                setattr(field_instance, attribute_name, value)
-                parseinfo.stack.pop()
-
-        field_instance._init_field = True
-
-        if field_instance.defaultFactory is not None:
-            # we want to add some additional requirements for defaultFactory.
-            # zope.schema will be happy with any function, we'd like to
-            # restrict to those that provide IContextAwareDefaultFactory
-            # or IDefaultFactory
-            if not (
-                IContextAwareDefaultFactory.providedBy(
-                    field_instance.defaultFactory
-                ) or
-                IDefaultFactory.providedBy(field_instance.defaultFactory)
-            ):
-                raise ImportError(
-                    u"defaultFactory must provide "
-                    u"zope.schema.interfaces.IContextAwareDefaultFactory "
-                    u"or plone.supermodel.IDefaultFactory"
-                )
-
-        return field_instance
-
-    def write(self, field, name, type, elementName='field'):
+    def write(self, field, name, element_type, element_name='field'):
         """Create and return a new element representing the given field
         """
 
-        element = etree.Element(elementName)
-
-        if name:
-            element.set('name', name)
-
-        element.set('type', type)
+        element = {'type': element_type}
 
         for attribute_name in sorted(self.fieldAttributes.keys()):
-            attributeField = self.fieldAttributes[attribute_name]
+            attribute_field = self.fieldAttributes[attribute_name]
             if 'w' in self.filteredAttributes.get(attribute_name, ''):
                 continue
-            child = self.writeAttribute(attributeField, field)
+            child_name, child = self.writeAttribute(attribute_field, field)
             if child is not None:
-                element.append(child)
-
-        return element
+                if child_name in element:
+                    element[child_name].append(child)
+                else:
+                    element[child_name] = child
+        return name, element
 
     # Field attribute read and write
 
@@ -177,7 +125,7 @@ class JSONBaseHandler(BaseHandler):
         force = (elementName in self.forcedFields)
 
         if ignoreDefault and value == attributeField.default:
-            return None
+            return elementName, None
 
         # The value points to another field. Recurse.
         if IField.providedBy(value):
@@ -187,7 +135,7 @@ class JSONBaseHandler(BaseHandler):
                 name=value_fieldType
             )
             if handler is None:
-                return None
+                return elementName, None
             return handler.write(
                 value, name=None,
                 type=value_fieldType,
