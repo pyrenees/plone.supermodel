@@ -59,6 +59,7 @@ setup(
         'zope.deferredimport',
         'zope.dottedname',
         'z3c.zcmlhook',
+        'six',
     ],
     extras_require={
         'lxml': [],  # BBB
