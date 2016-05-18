@@ -6,9 +6,15 @@ Changelog
 
 New:
 
-- *add item here*
+- Add security schema (from plone.autoform) as an optional
+  include via ``<include package="plone.supermodel" file="security.zcml" />``
+  when plone.autoform is not available.
+  [datakurre]
 
 Fixes:
+
+- Fix tests on Python 3.5.
+  [datakurre]
 
 - Update setup.py url to point to github location.
   [esteele]
