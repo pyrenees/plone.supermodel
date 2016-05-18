@@ -20,13 +20,6 @@ else:
     text_type = str
 
 
-# Python 2.7/3 compatibility
-try:
-    unicode
-except NameError:
-    unicode = str
-
-
 # Defaults
 
 @implementer(IFromUnicode)

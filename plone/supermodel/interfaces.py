@@ -167,14 +167,6 @@ class IFieldExportImportHandler(Interface):
         """
 
 
-class IXMLFieldExportImportHandler(IFieldExportImportHandler):
-    """Utility to handle import/export of XML content"""
-
-
-class IJSONFieldExportImportHandler(IFieldExportImportHandler):
-    """Utility to handle import/export of JSON content"""
-
-
 class ISchemaMetadataHandler(Interface):
     """A third party application can register named utilities providing this
     interface. For each schema that is parsed in a model, the read() method

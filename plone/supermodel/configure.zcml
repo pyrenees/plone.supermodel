@@ -44,204 +44,103 @@
     <!-- Field handlers for all of zope.schema -->
 
     <utility
-        component=".fields.XMLBytesHandler"
+        component=".fields.BytesHandler"
         name="zope.schema.Bytes"
         />
     <utility
-        component=".fields.XMLASCIIHandler"
+        component=".fields.ASCIIHandler"
         name="zope.schema.ASCII"
         />
     <utility
-        component=".fields.XMLBytesLineHandler"
+        component=".fields.BytesLineHandler"
         name="zope.schema.BytesLine"
         />
     <utility
-        component=".fields.XMLASCIILineHandler"
+        component=".fields.ASCIILineHandler"
         name="zope.schema.ASCIILine"
         />
     <utility
-        component=".fields.XMLTextHandler"
+        component=".fields.TextHandler"
         name="zope.schema.Text"
         />
     <utility
-        component=".fields.XMLTextLineHandler"
+        component=".fields.TextLineHandler"
         name="zope.schema.TextLine"
         />
     <utility
-        component=".fields.XMLBoolHandler"
+        component=".fields.BoolHandler"
         name="zope.schema.Bool"
         />
     <utility
-        component=".fields.XMLIntHandler"
+        component=".fields.IntHandler"
         name="zope.schema.Int"
         />
     <utility
-        component=".fields.XMLFloatHandler"
+        component=".fields.FloatHandler"
         name="zope.schema.Float"
         />
     <utility
-        component=".fields.XMLDecimalHandler"
+        component=".fields.DecimalHandler"
         name="zope.schema.Decimal"
         />
     <utility
-        component=".fields.XMLTupleHandler"
+        component=".fields.TupleHandler"
         name="zope.schema.Tuple"
         />
     <utility
-        component=".fields.XMLListHandler"
+        component=".fields.ListHandler"
         name="zope.schema.List"
         />
     <utility
-        component=".fields.XMLSetHandler"
+        component=".fields.SetHandler"
         name="zope.schema.Set"
         />
     <utility
-        component=".fields.XMLFrozenSetHandler"
+        component=".fields.FrozenSetHandler"
         name="zope.schema.FrozenSet"
         />
     <utility
-        component=".fields.XMLPasswordHandler"
+        component=".fields.PasswordHandler"
         name="zope.schema.Password"
         />
     <utility
-        component=".fields.XMLDictHandler"
+        component=".fields.DictHandler"
         name="zope.schema.Dict"
         />
     <utility
-        component=".fields.XMLDatetimeHandler"
+        component=".fields.DatetimeHandler"
         name="zope.schema.Datetime"
         />
     <utility
-        component=".fields.XMLDateHandler"
+        component=".fields.DateHandler"
         name="zope.schema.Date"
         />
     <utility
-        component=".fields.XMLSourceTextHandler"
+        component=".fields.SourceTextHandler"
         name="zope.schema.SourceText"
         />
     <utility
-        component=".fields.XMLURIHandler"
+        component=".fields.URIHandler"
         name="zope.schema.URI"
         />
     <utility
-        component=".fields.XMLIdHandler"
+        component=".fields.IdHandler"
         name="zope.schema.Id"
         />
     <utility
-        component=".fields.XMLDottedNameHandler"
+        component=".fields.DottedNameHandler"
         name="zope.schema.DottedName"
         />
     <utility
-        component=".fields.XMLInterfaceFieldHandler"
+        component=".fields.InterfaceFieldHandler"
         name="zope.schema.InterfaceField"
         />
     <utility
-        component=".fields.XMLObjectHandler"
+        component=".fields.ObjectHandler"
         name="zope.schema.Object"
         />
     <utility
-        component=".fields.XMLChoiceHandler"
-        name="zope.schema.Choice"
-        />
-
-    <utility
-        component=".fields.JSONBytesHandler"
-        name="zope.schema.Bytes"
-        />
-    <utility
-        component=".fields.JSONASCIIHandler"
-        name="zope.schema.ASCII"
-        />
-    <utility
-        component=".fields.JSONBytesLineHandler"
-        name="zope.schema.BytesLine"
-        />
-    <utility
-        component=".fields.JSONASCIILineHandler"
-        name="zope.schema.ASCIILine"
-        />
-    <utility
-        component=".fields.JSONTextHandler"
-        name="zope.schema.Text"
-        />
-    <utility
-        component=".fields.JSONTextLineHandler"
-        name="zope.schema.TextLine"
-        />
-    <utility
-        component=".fields.JSONBoolHandler"
-        name="zope.schema.Bool"
-        />
-    <utility
-        component=".fields.JSONIntHandler"
-        name="zope.schema.Int"
-        />
-    <utility
-        component=".fields.JSONFloatHandler"
-        name="zope.schema.Float"
-        />
-    <utility
-        component=".fields.JSONDecimalHandler"
-        name="zope.schema.Decimal"
-        />
-    <utility
-        component=".fields.JSONTupleHandler"
-        name="zope.schema.Tuple"
-        />
-    <utility
-        component=".fields.JSONListHandler"
-        name="zope.schema.List"
-        />
-    <utility
-        component=".fields.JSONSetHandler"
-        name="zope.schema.Set"
-        />
-    <utility
-        component=".fields.JSONFrozenSetHandler"
-        name="zope.schema.FrozenSet"
-        />
-    <utility
-        component=".fields.JSONPasswordHandler"
-        name="zope.schema.Password"
-        />
-    <utility
-        component=".fields.JSONDictHandler"
-        name="zope.schema.Dict"
-        />
-    <utility
-        component=".fields.JSONDatetimeHandler"
-        name="zope.schema.Datetime"
-        />
-    <utility
-        component=".fields.JSONDateHandler"
-        name="zope.schema.Date"
-        />
-    <utility
-        component=".fields.JSONSourceTextHandler"
-        name="zope.schema.SourceText"
-        />
-    <utility
-        component=".fields.JSONURIHandler"
-        name="zope.schema.URI"
-        />
-    <utility
-        component=".fields.JSONIdHandler"
-        name="zope.schema.Id"
-        />
-    <utility
-        component=".fields.JSONDottedNameHandler"
-        name="zope.schema.DottedName"
-        />
-    <utility
-        component=".fields.JSONInterfaceFieldHandler"
-        name="zope.schema.InterfaceField"
-        />
-    <utility
-        component=".fields.JSONObjectHandler"
-        name="zope.schema.Object"
-        />
-    <utility
-        component=".fields.JSONChoiceHandler"
+        component=".fields.ChoiceHandler"
         name="zope.schema.Choice"
         />
 
