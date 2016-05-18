@@ -42,6 +42,14 @@ def serializeModel(model):
     return serializer.serialize(model)
 
 
+def serializeSchemaAsJSON(schema, name=u""):
+    return serializeModelAsJSON(model.Model({name: schema}))
+
+
+def serializeModelAsJSON(model):
+    return serializer.JSONSerializer().serialize(model)
+
+
 moduleProvides(IXMLToSchema)
 
 __all__ = (
