@@ -75,11 +75,11 @@ def parse(source, policy=u""):
         # the filename and line number of the element that caused the problem.
         # Keep the original traceback so the developer can debug where the problem
         # happened.
-        six.reraise(SupermodelParseError(
+        six.reraise(SupermodelParseError, SupermodelParseError(
             e,
             fname,
             parseinfo.stack[-1]
-        ), None, sys.exc_info()[2])
+        ), sys.exc_info()[2])
 
 
 def _parse(source, policy):

@@ -1,0 +1,22 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    i18n_domain="plone.supermodel">
+
+  <include package="plone.supermodel" />
+
+  <adapter
+      factory=".directives.ReadPermissionsPlugin"
+      name="plone.supermodel.read_permissions"
+      />
+
+  <adapter
+      factory=".directives.WritePermissionsPlugin"
+      name="plone.supermodel.write_permissions"
+      />
+
+  <utility
+      factory=".security.SecuritySchema"
+      name="plone.supermodel.security"
+      />
+
+</configure>

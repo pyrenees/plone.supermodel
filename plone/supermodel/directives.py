@@ -6,6 +6,8 @@ from plone.supermodel.interfaces import ISchema
 from plone.supermodel.interfaces import ISchemaPlugin
 from plone.supermodel.interfaces import PRIMARY_FIELDS_KEY
 from plone.supermodel.interfaces import SCHEMA_NAME_KEY
+from plone.supermodel.interfaces import READ_PERMISSIONS_KEY
+from plone.supermodel.interfaces import WRITE_PERMISSIONS_KEY
 from plone.supermodel.model import Fieldset
 from plone.supermodel.utils import syncSchema
 from zope.component import adapter
@@ -194,6 +196,29 @@ class FieldsetCheckerPlugin(CheckerPlugin):
         for fieldset in self.value:
             for fieldName in fieldset.fields:
                 yield fieldName
+
+
+class read_permission(MetadataDictDirective):
+    """Directive used to set a field read permission
+    """
+    key = READ_PERMISSIONS_KEY
+
+    def factory(self, **kw):
+        return kw
+
+
+class write_permission(read_permission):
+    """Directive used to set a field write permission
+    """
+    key = WRITE_PERMISSIONS_KEY
+
+
+class ReadPermissionsPlugin(DictCheckerPlugin):
+    key = READ_PERMISSIONS_KEY
+
+
+class WritePermissionsPlugin(DictCheckerPlugin):
+    key = WRITE_PERMISSIONS_KEY
 
 
 try:

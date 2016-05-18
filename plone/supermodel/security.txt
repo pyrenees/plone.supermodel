@@ -1,0 +1,62 @@
+Supermodel handlers
+===================
+
+This package contains handlers for a plone.supermodel namespace
+``security``, which can be used to set field read and write
+permissions.
+
+Test setup
+----------
+
+First, let's load this package's ZCML so that we can run the tests:
+
+    >>> configuration = """\
+    ... <configure xmlns="http://namespaces.zope.org/zope">
+    ...
+    ...   <include package="plone.supermodel" file="security.zcml" />
+    ...
+    ... </configure>
+    ... """
+    >>> from io import StringIO
+    >>> from zope.configuration import xmlconfig
+    >>> xmlconfig.xmlconfig(StringIO(configuration))
+
+XML sample
+----------
+
+Next, let's define a sample model that exercises the various ``form`` and
+``security`` attributes.
+
+    >>> schema = u"""\
+    ... <?xml version="1.0" encoding="UTF-8"?>
+    ... <model xmlns="http://namespaces.plone.org/supermodel/schema"
+    ...     xmlns:security="http://namespaces.plone.org/supermodel/security">
+    ...   <schema>
+    ...     <field type="zope.schema.TextLine" name="one"
+    ...         security:read-permission="zope2.View"
+    ...         security:write-permission="cmf.ModifyPortalContent">
+    ...       <title>One</title>
+    ...     </field>
+    ...   </schema>
+    ... </model>
+    ... """
+
+Notes:
+
+* To set a read or write permission, use ``security:read-permission`` or
+  ``security:write-permission``. The value should be the name of an
+  ``IPermission`` utility.
+
+We can load this using plone.supermodel:
+
+    >>> from plone.supermodel import loadString
+    >>> model = loadString(schema)
+
+The interface defined in the model should now have the relevant security data:
+
+    >>> from plone.supermodel.interfaces import \
+    ...     READ_PERMISSIONS_KEY, WRITE_PERMISSIONS_KEY
+    >>> model.schema.getTaggedValue(READ_PERMISSIONS_KEY)
+    {'one': 'zope2.View'}
+    >>> model.schema.getTaggedValue(WRITE_PERMISSIONS_KEY)
+    {'one': 'cmf.ModifyPortalContent'}

@@ -2,18 +2,20 @@
 from io import BytesIO
 from io import StringIO
 from lxml import etree
-import re
-import sys
-from zope.configuration.xmlconfig import _clearContext
-from plone.supermodel import utils
 from plone.supermodel.exportimport import ChoiceHandler
+from plone.supermodel import directives
+from plone.supermodel import model
+from plone.supermodel import utils
 from plone.supermodel.interfaces import IDefaultFactory
 from plone.supermodel.interfaces import IInvariant
+from plone.supermodel.interfaces import READ_PERMISSIONS_KEY
+from plone.supermodel.interfaces import WRITE_PERMISSIONS_KEY
+from zope.configuration.xmlconfig import _clearContext
 from zope import schema
-from zope.interface import Interface
-from zope.interface import Invalid
 from zope.interface import alsoProvides
 from zope.interface import implementer
+from zope.interface import Interface
+from zope.interface import Invalid
 from zope.interface import provider
 from zope.schema import getFieldNamesInOrder
 from zope.schema.interfaces import IContextAwareDefaultFactory
@@ -21,6 +23,8 @@ from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 import doctest
+import re
+import sys
 import unittest
 import zope.component.testing
 
@@ -520,6 +524,55 @@ class TestChoiceHandling(unittest.TestCase):
                 )
 
 
+class TestSchemaDirectives(unittest.TestCase):
+
+    def setUp(self):
+        configure()
+
+    def tearDown(self):
+        zope.component.testing.tearDown(self)
+        _clearContext()
+
+    def test_schema_directives_store_tagged_values(self):
+
+        class IDummy(model.Schema):
+
+            directives.read_permission(foo='zope2.View')
+            directives.write_permission(foo='cmf.ModifyPortalContent')
+
+            foo = zope.schema.TextLine(title=u"Foo")
+
+        model.finalizeSchemas(IDummy)
+
+        self.assertEqual({'foo': 'zope2.View'},
+                         IDummy.queryTaggedValue(READ_PERMISSIONS_KEY))
+        self.assertEqual({'foo': 'cmf.ModifyPortalContent'},
+                         IDummy.queryTaggedValue(WRITE_PERMISSIONS_KEY))
+
+    def test_multiple_invocations(self):
+
+        class IDummy(model.Schema):
+
+            directives.read_permission(foo='zope2.View', bar='zope2.View')
+            directives.read_permission(baz='random.Permission')
+            directives.write_permission(foo='cmf.ModifyPortalContent')
+            directives.write_permission(baz='another.Permission')
+
+            foo = zope.schema.TextLine(title=u"Foo")
+            baz = zope.schema.TextLine(title=u"Baz")
+
+        self.assertEqual(
+            {'foo': 'zope2.View',
+             'bar': 'zope2.View',
+             'baz': 'random.Permission'},
+            IDummy.queryTaggedValue(READ_PERMISSIONS_KEY)
+        )
+        self.assertEqual(
+            {'foo': 'cmf.ModifyPortalContent', 'baz': 'another.Permission'},
+            IDummy.queryTaggedValue(WRITE_PERMISSIONS_KEY)
+        )
+
+
 def tearDown(*args):
     zope.component.testing.tearDown(*args)
     _clearContext()
@@ -530,6 +583,7 @@ def test_suite():
         unittest.makeSuite(TestUtils),
         unittest.makeSuite(TestValueToElement),
         unittest.makeSuite(TestChoiceHandling),
+        unittest.makeSuite(TestSchemaDirectives),
         doctest.DocFileSuite('schema.txt',
             setUp=zope.component.testing.setUp,
             tearDown=tearDown,
@@ -539,6 +593,10 @@ def test_suite():
             setUp=zope.component.testing.setUp,
             tearDown=tearDown,
             optionflags=doctest.ELLIPSIS,
+            checker=PolyglotOutputChecker()),
+        doctest.DocFileSuite('security.txt',
+            setUp=zope.component.testing.setUp,
+            tearDown=tearDown,
             checker=PolyglotOutputChecker()),
         doctest.DocFileSuite('schemaclass.txt',
             setUp=zope.component.testing.setUp,

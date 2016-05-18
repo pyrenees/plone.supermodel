@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pkg_resources
 from zope.interface import Interface
 from zope.interface.interfaces import IInterface
 import zope.schema
@@ -21,6 +22,21 @@ PRIMARY_FIELDS_KEY = 'plone.supermodel.primary'
 
 XML_NAMESPACE = u"http://namespaces.plone.org/supermodel/schema"
 I18N_NAMESPACE = u'http://xml.zope.org/namespaces/i18n'
+
+# Security namespace
+
+SECURITY_NAMESPACE = 'http://namespaces.plone.org/supermodel/security'
+SECURITY_PREFIX = 'security'
+
+# Schema interface tagged value keys for security
+try:
+    pkg_resources.get_distribution('plone.autoform')
+except pkg_resources.DistributionNotFound:
+    READ_PERMISSIONS_KEY = u"plone.supermodel.security.read-permissions"
+    WRITE_PERMISSIONS_KEY = u"plone.supermodel.security.write-permissions"
+else:  # BBB for Plone with plone.autoform
+    READ_PERMISSIONS_KEY = u"plone.autoform.security.read-permissions"
+    WRITE_PERMISSIONS_KEY = u"plone.autoform.security.write-permissions"
 
 
 class ISchema(IInterface):
