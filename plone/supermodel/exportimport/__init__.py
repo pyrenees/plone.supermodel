@@ -1,4 +1,8 @@
 from .basehandler import BaseHandler
+from .basehandler import ChoiceHandler
+from .basehandler import ObjectHandler
+from .basehandler import DictHandler
+from .basehandler import OrderedDictField
 
 from .xmlhandler import XMLBaseHandler
 from .xmlhandler import XMLDictHandler

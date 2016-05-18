@@ -1,20 +1,8 @@
 # -*- coding: utf-8 -*-
-from lxml import etree
-from plone.supermodel.debug import parseinfo
-from plone.supermodel.interfaces import IDefaultFactory
-from plone.supermodel.interfaces import IFieldExportImportHandler
-from plone.supermodel.interfaces import IJSONFieldExportImportHandler
-from plone.supermodel.interfaces import IXMLFieldExportImportHandler
-from plone.supermodel.interfaces import IFieldNameExtractor
-from plone.supermodel.utils import noNS
 from plone.supermodel.utils import valueToElement
 from plone.supermodel.utils import elementToValue
-from zope.component import queryUtility
 from zope.interface import Interface
 from zope.interface import implementedBy
-from zope.interface import implementer
-from zope.schema.interfaces import IContextAwareDefaultFactory
-from zope.schema.interfaces import IField
 from zope.schema.interfaces import IVocabularyTokenized
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -77,3 +65,183 @@ class BaseHandler(object):
     def _constructField(self, attributes):
         return self.klass(**attributes)
 
+
+class DictHandler(BaseHandler):
+    """Special handling for the Dict field, which uses Attribute instead of
+    Field to describe its key_type and value_type.
+    """
+
+    def __init__(self, klass):
+        super(DictHandler, self).__init__(klass)
+        self.fieldAttributes['key_type'] = zope.schema.Field(
+            __name__='key_type',
+            title=u"Key type"
+        )
+        self.fieldAttributes['value_type'] = zope.schema.Field(
+            __name__='value_type',
+            title=u"Value type"
+        )
+
+
+class ObjectHandler(BaseHandler):
+    """Special handling for the Object field, which uses Attribute instead of
+    Field to describe its schema
+    """
+
+    # We can't serialise the value or missing_value of an object field.
+
+    filteredAttributes = BaseHandler.filteredAttributes.copy()
+    filteredAttributes.update({'default': 'w', 'missing_value': 'w'})
+
+    def __init__(self, klass):
+        super(ObjectHandler, self).__init__(klass)
+
+        # This is not correctly set in the interface
+        self.fieldAttributes['schema'] = zope.schema.InterfaceField(
+            __name__='schema'
+        )
+
+
+class ChoiceHandler(BaseHandler):
+    """Special handling for the Choice field
+    """
+
+    filteredAttributes = BaseHandler.filteredAttributes.copy()
+    filteredAttributes.update(
+        {'vocabulary': 'w',
+         'values': 'w',
+         'source': 'w',
+         'vocabularyName': 'rw'
+         }
+    )
+
+    def __init__(self, klass):
+        super(ChoiceHandler, self).__init__(klass)
+
+        # Special options for the constructor. These are not automatically
+        # written.
+
+        self.fieldAttributes['vocabulary'] = zope.schema.TextLine(
+            __name__='vocabulary',
+            title=u"Named vocabulary"
+        )
+
+        self.fieldAttributes['values'] = zope.schema.List(
+            __name__='values',
+            title=u"Values",
+            value_type=zope.schema.Text(title=u"Value")
+        )
+
+        # XXX: We can't be more specific about the schema, since the field
+        # supports both ISource and IContextSourceBinder. However, the
+        # initialiser will validate.
+        self.fieldAttributes['source'] = zope.schema.Object(
+            __name__='source',
+            title=u"Source",
+            schema=Interface
+        )
+
+    def readAttribute(self, element, attributeField):
+        if (
+            element.tag == 'values' and
+            any([child.get('key') for child in element])
+        ):
+            attributeField = OrderedDictField(
+                key_type=zope.schema.TextLine(),
+                value_type=zope.schema.TextLine(),
+            )
+        return elementToValue(attributeField, element)
+
+    def _constructField(self, attributes):
+        if 'values' in attributes:
+            if isinstance(attributes['values'], OrderedDict):
+                attributes['values'] = attributes['values'].items()
+            terms = []
+            for value in attributes['values']:
+                title = (value or u'')
+                if isinstance(value, tuple):
+                    value, title = value
+                encoded = (value or '').encode('unicode_escape')
+                if value != encoded:
+                    value = value or u''
+                    term = SimpleTerm(
+                        token=encoded,
+                        value=value,
+                        title=title
+                    )
+                else:
+                    term = SimpleTerm(value=value, title=title)
+                terms.append(term)
+            attributes['vocabulary'] = SimpleVocabulary(terms)
+            del attributes['values']
+        return super(ChoiceHandler, self)._constructField(attributes)
+
+    def write(self, field, name, type, elementName='field'):
+
+        element = super(ChoiceHandler, self).write(
+            field,
+            name,
+            type,
+            elementName
+        )
+
+        # write vocabulary or values list
+
+        # Named vocabulary
+        if field.vocabularyName is not None and field.vocabulary is None:
+            attributeField = self.fieldAttributes['vocabulary']
+            child = valueToElement(
+                attributeField,
+                field.vocabularyName,
+                name='vocabulary',
+                force=True
+            )
+            element.append(child)
+
+        # Listed vocabulary - attempt to convert to a simple list of values
+        elif (
+            field.vocabularyName is None and
+            IVocabularyTokenized.providedBy(field.vocabulary)
+        ):
+            value = []
+            for term in field.vocabulary:
+                if (
+                    not isinstance(term.value, (str, unicode), ) or
+                    term.token != term.value.encode('unicode_escape')
+                ):
+                    raise NotImplementedError(
+                        u"Cannot export a vocabulary that is not "
+                        u"based on a simple list of values"
+                    )
+                if term.title and term.title != term.value:
+                    value.append((term.value, term.title))
+                else:
+                    value.append(term.value)
+
+            attributeField = self.fieldAttributes['values']
+            if any(map(lambda v: isinstance(v, tuple), value)):
+                def _pair(v):
+                    return v if len(v) == 2 else (v[0],) * 2
+                value = OrderedDict(map(_pair, value))
+                attributeField = OrderedDictField(
+                    key_type=zope.schema.TextLine(),
+                    value_type=zope.schema.TextLine(),
+                )
+            child = valueToElement(
+                attributeField,
+                value,
+                name='values',
+                force=True
+            )
+            element.append(child)
+
+        # Anything else is not allowed - we can't export ISource/IVocabulary or
+        #  IContextSourceBinder objects.
+        else:
+            raise NotImplementedError(
+                u"Choice fields with vocabularies not based on "
+                u"a simple list of values or a named vocabulary "
+                u"cannot be exported"
+            )
+
+        return element
