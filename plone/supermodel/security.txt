@@ -10,7 +10,7 @@ Test setup
 
 First, let's load this package's ZCML so that we can run the tests:
 
-    >>> configuration = """\
+    >>> configuration = u"""\
     ... <configure xmlns="http://namespaces.zope.org/zope">
     ...
     ...   <include package="plone.supermodel" file="security.zcml" />
@@ -27,7 +27,7 @@ XML sample
 Next, let's define a sample model that exercises the various ``form`` and
 ``security`` attributes.
 
-    >>> schema = u"""\
+    >>> schema = """\
     ... <?xml version="1.0" encoding="UTF-8"?>
     ... <model xmlns="http://namespaces.plone.org/supermodel/schema"
     ...     xmlns:security="http://namespaces.plone.org/supermodel/security">
