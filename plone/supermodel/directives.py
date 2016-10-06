@@ -8,6 +8,8 @@ from plone.supermodel.interfaces import PRIMARY_FIELDS_KEY
 from plone.supermodel.interfaces import SCHEMA_NAME_KEY
 from plone.supermodel.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.interfaces import WRITE_PERMISSIONS_KEY
+from plone.supermodel.interfaces import INDEX_KEY
+from plone.supermodel.interfaces import CATALOG_KEY
 from plone.supermodel.model import Fieldset
 from plone.supermodel.utils import syncSchema
 from zope.component import adapter
@@ -219,6 +221,32 @@ class ReadPermissionsPlugin(DictCheckerPlugin):
 
 class WritePermissionsPlugin(DictCheckerPlugin):
     key = WRITE_PERMISSIONS_KEY
+
+
+class catalog(MetadataDictDirective):
+    """Directive used to set a field read permission
+    """
+    key = CATALOG_KEY
+
+    def factory(self, **kw):
+        return kw
+
+
+class CatalogPlugin(DictCheckerPlugin):
+    key = CATALOG_KEY
+
+
+class index(MetadataDictDirective):
+    """Directive used to set a field read permission
+    """
+    key = INDEX_KEY
+
+    def factory(self, **kw):
+        return kw
+
+
+class IndexPlugin(DictCheckerPlugin):
+    key = INDEX_KEY
 
 
 try:
